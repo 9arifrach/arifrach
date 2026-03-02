@@ -1,21 +1,158 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>Life Calendar</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pomodoro</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Segoe UI, sans-serif;
+}
+
+body{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:
+    radial-gradient(circle at center, #121217 0%, #050507 70%, #000000 100%);
+  color:#eaeaea;
+}
+
+.container{
+  text-align:center;
+  padding:50px 60px;
+  border-radius:28px;
+  background:rgba(255,255,255,0.03);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 80px rgba(0,0,0,0.9),
+    inset 0 0 30px rgba(255,255,255,0.03);
+}
+
+.mode{
+  font-size:14px;
+  letter-spacing:4px;
+  opacity:.6;
+  margin-bottom:25px;
+}
+
+.timer{
+  font-size:120px;
+  font-weight:700;
+  letter-spacing:3px;
+  margin-bottom:35px;
+  text-shadow:0 0 20px rgba(255,255,255,0.05);
+}
+
+.round{
+  font-size:16px;
+  opacity:.7;
+  margin-bottom:35px;
+}
+
+.main-btn{
+  border:none;
+  background:#8b2c2c;
+  color:white;
+  padding:16px 55px;
+  font-size:20px;
+  border-radius:40px;
+  cursor:pointer;
+  transition:0.3s;
+  box-shadow:0 0 30px rgba(139,44,44,.4);
+}
+
+.main-btn:hover{
+  transform:scale(1.08);
+  background:#a33232;
+}
+
+.main-btn:active{
+  transform:scale(0.96);
+}
+</style>
 </head>
 <body>
 
-  <h1>Life Calendar</h1>
-  
-  <div class="grid-container">
-    <div id="grid"></div>
-  </div>
+<div class="container">
+  <div class="mode" id="modeLabel">FOCUS</div>
+  <div class="timer" id="timer">25:00</div>
+  <div class="round" id="round">Round: 0</div>
+  <button class="main-btn" id="mainBtn">Start</button>
+</div>
 
-  <div id="footer"></div> <script src="script.js"></script>
-  <div>
-    <h2>Arif Rachniyom</h2>
-  </div>
+<script>
+const FOCUS_TIME = 25 * 60; // 25 นาที
+const BREAK_TIME = 5 * 60;  // 5 นาที
+
+let time = FOCUS_TIME;
+let isRunning = false;
+let isFocus = true;
+let round = 0;
+let interval = null;
+
+const timerDisplay = document.getElementById("timer");
+const mainBtn = document.getElementById("mainBtn");
+const modeLabel = document.getElementById("modeLabel");
+const roundLabel = document.getElementById("round");
+
+function updateDisplay() {
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+  timerDisplay.textContent =
+    `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+}
+
+function switchMode() {
+  if (isFocus) {
+    // ไปพัก
+    isFocus = false;
+    time = BREAK_TIME;
+    modeLabel.textContent = "BREAK";
+  } else {
+    // กลับไปโฟกัส + เพิ่มรอบ
+    isFocus = true;
+    time = FOCUS_TIME;
+    round++;
+    modeLabel.textContent = "FOCUS";
+    roundLabel.textContent = "Round: " + round;
+  }
+  updateDisplay();
+}
+
+function startTimer() {
+  interval = setInterval(() => {
+    if (time > 0) {
+      time--;
+      updateDisplay();
+    } else {
+      // จบช่วงเวลา → สลับอัตโนมัติ
+      switchMode();
+    }
+  }, 1000);
+}
+
+mainBtn.addEventListener("click", () => {
+  if (!isRunning) {
+    // เริ่ม / เล่น
+    isRunning = true;
+    mainBtn.textContent = "Pause";
+    startTimer();
+  } else {
+    // หยุดชั่วคราว
+    isRunning = false;
+    mainBtn.textContent = "Start";
+    clearInterval(interval);
+  }
+});
+
+updateDisplay();
+</script>
+
 </body>
 </html>
