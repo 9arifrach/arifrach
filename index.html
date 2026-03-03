@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FocusFlow | Original Glow</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>FocusFlow | Auto-Loop</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         :root {
             --accent: #ff5b5b;
@@ -14,11 +14,11 @@
 
         body {
             margin: 0; height: 100vh; display: flex; flex-direction: column; align-items: center;
-            background-color: var(--bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif;
             transition: var(--transition); overflow: hidden; padding-top: 40px;
         }
 
-        /* Mode Switcher ทรงแคปซูลแบบเดิม */
+        /* Mode Switcher ทรงแคปซูล */
         .mode-switcher {
             background: rgba(255, 255, 255, 0.05);
             padding: 5px; border-radius: 15px; display: inline-flex;
@@ -27,14 +27,16 @@
 
         .mode-btn {
             background: transparent; border: none; color: rgba(255, 255, 255, 0.4);
-            padding: 10px 24px; border-radius: 12px; cursor: pointer;
+            padding: 10px 20px; border-radius: 12px; cursor: pointer;
             font-size: 14px; font-weight: 600; transition: 0.3s;
             display: flex; align-items: center; gap: 8px;
         }
 
         .mode-btn.active { background: rgba(255, 255, 255, 0.1); color: white; }
 
-        /* Timer Box พร้อมแสง Glow แบบตอนแรก */
+        .material-symbols-outlined { font-size: 20px; vertical-align: middle; }
+
+        /* Timer Box พร้อมแสง Glow */
         .main-content {
             flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%;
         }
@@ -47,44 +49,41 @@
         .progress-ring { position: absolute; transform: rotate(-90deg); }
         .progress-ring__circle {
             transition: stroke-dashoffset 1s linear;
-            stroke: var(--accent);
-            stroke-width: 8;
-            stroke-linecap: round;
-            /* กลับมาใช้แสงเรืองแสง (Glow) */
-            filter: drop-shadow(0 0 2px var(--accent));
+            stroke: var(--accent); stroke-width: 8; stroke-linecap: round;
+            filter: drop-shadow(0 0 10px var(--accent));
         }
 
         .time-display { font-size: 85px; font-weight: 800; margin: 0; letter-spacing: -2px; }
         .mode-label { font-size: 12px; letter-spacing: 4px; color: var(--accent); font-weight: bold; margin-top: -5px; }
 
-        /* Session Dots พร้อม Glow */
+        /* Session Dots */
         .session-dots { display: flex; justify-content: center; gap: 12px; margin-bottom: 30px; }
         .dot { width: 10px; height: 10px; background: rgba(255,255,255,0.15); border-radius: 50%; transition: 0.4s; }
         .dot.active { background: var(--accent); box-shadow: 0 0 12px var(--accent); }
 
-        /* Controls แบบเดิม */
+        /* Controls */
         .controls { display: flex; justify-content: center; align-items: center; gap: 25px; margin-bottom: 20px; }
         .play-btn {
             width: 75px; height: 75px; border-radius: 50%; border: none;
-            background: var(--accent); color: white; font-size: 28px;
-            cursor: pointer; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            background: var(--accent); color: white; font-size: 32px;
+            cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center;
         }
         .play-btn:hover { transform: scale(1.1); }
         .sub-btn {
             width: 50px; height: 50px; border-radius: 50%; border: none;
-            background: rgba(255,255,255,0.08); color: white; cursor: pointer; transition: 0.2s; font-size: 18px;
+            background: rgba(255,255,255,0.08); color: white; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        /* Total Time Display */
         .total-time { margin-bottom: 40px; opacity: 0.3; font-size: 12px; letter-spacing: 2px; }
     </style>
 </head>
 <body>
 
     <div class="mode-switcher">
-        <button class="mode-btn active" id="btn-focus"><i class="fa-solid fa-brain"></i> Focus</button>
-        <button class="mode-btn" id="btn-short"><i class="fa-solid fa-mug-hot"></i> Short Break</button>
-        <button class="mode-btn" id="btn-long"><i class="fa-solid fa-couch"></i> Long Break</button>
+        <button class="mode-btn active" id="btn-focus"><span class="material-symbols-outlined">psychology</span> Focus</button>
+        <button class="mode-btn" id="btn-short"><span class="material-symbols-outlined">coffee</span> Short Break</button>
+        <button class="mode-btn" id="btn-long"><span class="material-symbols-outlined">bed</span> Long Break</button>
     </div>
 
     <div class="main-content">
@@ -92,7 +91,7 @@
             <svg class="progress-ring" width="320" height="320">
                 <circle class="progress-ring__circle" fill="transparent" r="145" cx="160" cy="160"/>
             </svg>
-            <h3 class="time-display" id="timer">25:00</h3>
+            <h1 class="time-display" id="timer">25:00</h1>
             <div class="mode-label" id="modeName">FOCUS</div>
         </div>
 
@@ -101,9 +100,9 @@
         </div>
 
         <div class="controls">
-            <button class="sub-btn" onclick="resetEverything()"><i class="fa-solid fa-rotate-left"></i></button>
-            <button class="play-btn" onclick="toggleTimer()"><i class="fa-solid fa-play" id="playIcon"></i></button>
-            <button class="sub-btn" onclick="skipStep()"><i class="fa-solid fa-forward-step"></i></button>
+            <button class="sub-btn" onclick="resetEverything()"><span class="material-symbols-outlined">restart_alt</span></button>
+            <button class="play-btn" onclick="toggleTimer()"><span class="material-symbols-outlined" id="playIcon">play_arrow</span></button>
+            <button class="sub-btn" onclick="skipStep()"><span class="material-symbols-outlined">skip_next</span></button>
         </div>
 
         <div class="total-time">
@@ -145,43 +144,70 @@
 
     function toggleTimer() {
         const icon = document.getElementById('playIcon');
-        if (timerId) { clearInterval(timerId); timerId = null; icon.className = 'fa-solid fa-play'; }
-        else {
-            icon.className = 'fa-solid fa-pause';
+        if (timerId) {
+            clearInterval(timerId);
+            timerId = null;
+            icon.textContent = 'play_arrow';
+        } else {
+            icon.textContent = 'pause';
             timerId = setInterval(() => {
                 timeLeft--;
                 if (currentMode === 'focus') {
                     totalSecondsFocused++;
-                    const h = Math.floor(totalSecondsFocused/3600), mi = Math.floor((totalSecondsFocused%3600)/60), se = totalSecondsFocused%60;
-                    document.getElementById('totalTimeDisplay').textContent = `${h.toString().padStart(2,'0')}:${mi.toString().padStart(2,'0')}:${se.toString().padStart(2,'0')}`;
+                    updateTotalTime();
                 }
                 updateDisplay();
-                if (timeLeft <= 0) { clearInterval(timerId); handleLoop(); }
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    handleLoop();
+                }
             }, 1000);
         }
     }
 
+    function updateTotalTime() {
+        const h = Math.floor(totalSecondsFocused/3600), mi = Math.floor((totalSecondsFocused%3600)/60), se = totalSecondsFocused%60;
+        document.getElementById('totalTimeDisplay').textContent = `${h.toString().padStart(2,'0')}:${mi.toString().padStart(2,'0')}:${se.toString().padStart(2,'0')}`;
+    }
+
     function handleLoop() {
-        document.getElementById('bell').play();
+        document.getElementById('bell').play().catch(() => {});
+        
         if (currentMode === 'focus') {
             focusCycles++;
-            const dots = document.querySelectorAll('.dot');
-            dots.forEach((d, i) => d.classList.toggle('active', i < (focusCycles % 4 || (focusCycles > 0 ? 4 : 0))));
+            updateDots();
             if (focusCycles % 4 === 0) setMode('long'); else setMode('short');
-        } else setMode('focus');
-        setTimeout(() => toggleTimer(), 1000); // Auto-start
+        } else {
+            setMode('focus');
+        }
+        
+        // บรรทัดสำคัญ: สั่งให้ Timer เริ่มงานต่อทันที
+        setTimeout(() => {
+            if (!timerId) toggleTimer(); 
+        }, 1500); 
+    }
+
+    function updateDots() {
+        const dots = document.querySelectorAll('.dot');
+        const activeCount = focusCycles % 4 === 0 && focusCycles !== 0 ? 4 : focusCycles % 4;
+        dots.forEach((d, i) => d.classList.toggle('active', i < activeCount));
     }
 
     function resetEverything() {
         clearInterval(timerId); timerId = null;
-        document.getElementById('playIcon').className = 'fa-solid fa-play';
+        document.getElementById('playIcon').textContent = 'play_arrow';
         focusCycles = 0; totalSecondsFocused = 0;
-        document.getElementById('totalTimeDisplay').textContent = "00:00:00";
+        updateTotalTime();
         document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
         setMode('focus');
     }
 
-    function skipStep() { clearInterval(timerId); timerId = null; handleLoop(); }
+    function skipStep() {
+        clearInterval(timerId);
+        timerId = null;
+        handleLoop();
+    }
+
     setMode('focus');
 </script>
 </body>
