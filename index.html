@@ -1,158 +1,188 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pomodoro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusFlow | Original Glow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --accent: #ff5b5b;
+            --bg: #1a0a0a;
+            --transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-<style>
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-  font-family:Segoe UI, sans-serif;
-}
+        body {
+            margin: 0; height: 100vh; display: flex; flex-direction: column; align-items: center;
+            background-color: var(--bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: var(--transition); overflow: hidden; padding-top: 40px;
+        }
 
-body{
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:
-    radial-gradient(circle at center, #121217 0%, #050507 70%, #000000 100%);
-  color:#eaeaea;
-}
+        /* Mode Switcher ทรงแคปซูลแบบเดิม */
+        .mode-switcher {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 5px; border-radius: 15px; display: inline-flex;
+            border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: auto;
+        }
 
-.container{
-  text-align:center;
-  padding:50px 60px;
-  border-radius:28px;
-  background:rgba(255,255,255,0.03);
-  backdrop-filter: blur(12px);
-  box-shadow:
-    0 0 80px rgba(0,0,0,0.9),
-    inset 0 0 30px rgba(255,255,255,0.03);
-}
+        .mode-btn {
+            background: transparent; border: none; color: rgba(255, 255, 255, 0.4);
+            padding: 10px 24px; border-radius: 12px; cursor: pointer;
+            font-size: 14px; font-weight: 600; transition: 0.3s;
+            display: flex; align-items: center; gap: 8px;
+        }
 
-.mode{
-  font-size:14px;
-  letter-spacing:4px;
-  opacity:.6;
-  margin-bottom:25px;
-}
+        .mode-btn.active { background: rgba(255, 255, 255, 0.1); color: white; }
 
-.timer{
-  font-size:120px;
-  font-weight:700;
-  letter-spacing:3px;
-  margin-bottom:35px;
-  text-shadow:0 0 20px rgba(255,255,255,0.05);
-}
+        /* Timer Box พร้อมแสง Glow แบบตอนแรก */
+        .main-content {
+            flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%;
+        }
 
-.round{
-  font-size:16px;
-  opacity:.7;
-  margin-bottom:35px;
-}
+        .timer-box {
+            position: relative; width: 320px; height: 320px; margin-bottom: 30px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
 
-.main-btn{
-  border:none;
-  background:#8b2c2c;
-  color:white;
-  padding:16px 55px;
-  font-size:20px;
-  border-radius:40px;
-  cursor:pointer;
-  transition:0.3s;
-  box-shadow:0 0 30px rgba(139,44,44,.4);
-}
+        .progress-ring { position: absolute; transform: rotate(-90deg); }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 1s linear;
+            stroke: var(--accent);
+            stroke-width: 8;
+            stroke-linecap: round;
+            /* กลับมาใช้แสงเรืองแสง (Glow) */
+            filter: drop-shadow(0 0 2px var(--accent));
+        }
 
-.main-btn:hover{
-  transform:scale(1.08);
-  background:#a33232;
-}
+        .time-display { font-size: 85px; font-weight: 800; margin: 0; letter-spacing: -2px; }
+        .mode-label { font-size: 12px; letter-spacing: 4px; color: var(--accent); font-weight: bold; margin-top: -5px; }
 
-.main-btn:active{
-  transform:scale(0.96);
-}
-</style>
+        /* Session Dots พร้อม Glow */
+        .session-dots { display: flex; justify-content: center; gap: 12px; margin-bottom: 30px; }
+        .dot { width: 10px; height: 10px; background: rgba(255,255,255,0.15); border-radius: 50%; transition: 0.4s; }
+        .dot.active { background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+
+        /* Controls แบบเดิม */
+        .controls { display: flex; justify-content: center; align-items: center; gap: 25px; margin-bottom: 20px; }
+        .play-btn {
+            width: 75px; height: 75px; border-radius: 50%; border: none;
+            background: var(--accent); color: white; font-size: 28px;
+            cursor: pointer; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        .play-btn:hover { transform: scale(1.1); }
+        .sub-btn {
+            width: 50px; height: 50px; border-radius: 50%; border: none;
+            background: rgba(255,255,255,0.08); color: white; cursor: pointer; transition: 0.2s; font-size: 18px;
+        }
+
+        /* Total Time Display */
+        .total-time { margin-bottom: 40px; opacity: 0.3; font-size: 12px; letter-spacing: 2px; }
+    </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="mode" id="modeLabel">FOCUS</div>
-  <div class="timer" id="timer">25:00</div>
-  <div class="round" id="round">Round: 0</div>
-  <button class="main-btn" id="mainBtn">Start</button>
-</div>
+    <div class="mode-switcher">
+        <button class="mode-btn active" id="btn-focus"><i class="fa-solid fa-brain"></i> Focus</button>
+        <button class="mode-btn" id="btn-short"><i class="fa-solid fa-mug-hot"></i> Short Break</button>
+        <button class="mode-btn" id="btn-long"><i class="fa-solid fa-couch"></i> Long Break</button>
+    </div>
+
+    <div class="main-content">
+        <div class="timer-box">
+            <svg class="progress-ring" width="320" height="320">
+                <circle class="progress-ring__circle" fill="transparent" r="145" cx="160" cy="160"/>
+            </svg>
+            <h3 class="time-display" id="timer">25:00</h3>
+            <div class="mode-label" id="modeName">FOCUS</div>
+        </div>
+
+        <div class="session-dots" id="dotContainer">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+
+        <div class="controls">
+            <button class="sub-btn" onclick="resetEverything()"><i class="fa-solid fa-rotate-left"></i></button>
+            <button class="play-btn" onclick="toggleTimer()"><i class="fa-solid fa-play" id="playIcon"></i></button>
+            <button class="sub-btn" onclick="skipStep()"><i class="fa-solid fa-forward-step"></i></button>
+        </div>
+
+        <div class="total-time">
+            TOTAL FOCUS: <span id="totalTimeDisplay">00:00:00</span>
+        </div>
+    </div>
+
+    <audio id="bell"><source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
 <script>
-const FOCUS_TIME = 25 * 60; // 25 นาที
-const BREAK_TIME = 5 * 60;  // 5 นาที
+    let timeLeft, timerId = null, currentMode = 'focus', focusCycles = 0, totalSecondsFocused = 0;
+    
+    const config = {
+        focus: { min: 25, color: '#ff5b5b', bg: '#1a0a0a' },
+        short: { min: 5, color: '#40e0d0', bg: '#0a1a1a' },
+        long: { min: 15, color: '#9d7aff', bg: '#0e091a' }
+    };
 
-let time = FOCUS_TIME;
-let isRunning = false;
-let isFocus = true;
-let round = 0;
-let interval = null;
+    const circle = document.querySelector('.progress-ring__circle');
+    const radius = circle.r.baseVal.value;
+    const circumference = radius * 2 * Math.PI;
+    circle.style.strokeDasharray = `${circumference} ${circumference}`;
 
-const timerDisplay = document.getElementById("timer");
-const mainBtn = document.getElementById("mainBtn");
-const modeLabel = document.getElementById("modeLabel");
-const roundLabel = document.getElementById("round");
-
-function updateDisplay() {
-  const minutes = Math.floor(time / 60);
-  const seconds = time % 60;
-  timerDisplay.textContent =
-    `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-}
-
-function switchMode() {
-  if (isFocus) {
-    // ไปพัก
-    isFocus = false;
-    time = BREAK_TIME;
-    modeLabel.textContent = "BREAK";
-  } else {
-    // กลับไปโฟกัส + เพิ่มรอบ
-    isFocus = true;
-    time = FOCUS_TIME;
-    round++;
-    modeLabel.textContent = "FOCUS";
-    roundLabel.textContent = "Round: " + round;
-  }
-  updateDisplay();
-}
-
-function startTimer() {
-  interval = setInterval(() => {
-    if (time > 0) {
-      time--;
-      updateDisplay();
-    } else {
-      // จบช่วงเวลา → สลับอัตโนมัติ
-      switchMode();
+    function setMode(mode) {
+        currentMode = mode;
+        timeLeft = config[mode].min * 60;
+        document.documentElement.style.setProperty('--bg', config[mode].bg);
+        document.documentElement.style.setProperty('--accent', config[mode].color);
+        document.getElementById('modeName').textContent = mode.toUpperCase().replace('SHORT', 'SHORT BREAK').replace('LONG', 'LONG BREAK');
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.id === 'btn-' + mode));
+        updateDisplay();
     }
-  }, 1000);
-}
 
-mainBtn.addEventListener("click", () => {
-  if (!isRunning) {
-    // เริ่ม / เล่น
-    isRunning = true;
-    mainBtn.textContent = "Pause";
-    startTimer();
-  } else {
-    // หยุดชั่วคราว
-    isRunning = false;
-    mainBtn.textContent = "Start";
-    clearInterval(interval);
-  }
-});
+    function updateDisplay() {
+        const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+        document.getElementById('timer').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        circle.style.strokeDashoffset = circumference - (timeLeft / (config[currentMode].min * 60) * circumference);
+    }
 
-updateDisplay();
+    function toggleTimer() {
+        const icon = document.getElementById('playIcon');
+        if (timerId) { clearInterval(timerId); timerId = null; icon.className = 'fa-solid fa-play'; }
+        else {
+            icon.className = 'fa-solid fa-pause';
+            timerId = setInterval(() => {
+                timeLeft--;
+                if (currentMode === 'focus') {
+                    totalSecondsFocused++;
+                    const h = Math.floor(totalSecondsFocused/3600), mi = Math.floor((totalSecondsFocused%3600)/60), se = totalSecondsFocused%60;
+                    document.getElementById('totalTimeDisplay').textContent = `${h.toString().padStart(2,'0')}:${mi.toString().padStart(2,'0')}:${se.toString().padStart(2,'0')}`;
+                }
+                updateDisplay();
+                if (timeLeft <= 0) { clearInterval(timerId); handleLoop(); }
+            }, 1000);
+        }
+    }
+
+    function handleLoop() {
+        document.getElementById('bell').play();
+        if (currentMode === 'focus') {
+            focusCycles++;
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((d, i) => d.classList.toggle('active', i < (focusCycles % 4 || (focusCycles > 0 ? 4 : 0))));
+            if (focusCycles % 4 === 0) setMode('long'); else setMode('short');
+        } else setMode('focus');
+        setTimeout(() => toggleTimer(), 1000); // Auto-start
+    }
+
+    function resetEverything() {
+        clearInterval(timerId); timerId = null;
+        document.getElementById('playIcon').className = 'fa-solid fa-play';
+        focusCycles = 0; totalSecondsFocused = 0;
+        document.getElementById('totalTimeDisplay').textContent = "00:00:00";
+        document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+        setMode('focus');
+    }
+
+    function skipStep() { clearInterval(timerId); timerId = null; handleLoop(); }
+    setMode('focus');
 </script>
-
 </body>
 </html>
