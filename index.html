@@ -49,7 +49,7 @@
         .progress-ring { position: absolute; transform: rotate(-90deg); }
         .progress-ring__circle {
             transition: stroke-dashoffset 1s linear;
-            stroke: var(--accent); stroke-width: 6; stroke-linecap: round;
+            stroke: var(--accent); stroke-width: 8; stroke-linecap: round;
             filter: drop-shadow(0 0 10px var(--accent));
         }
 
@@ -112,103 +112,6 @@
 
     <audio id="bell"><source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
-<script>
-    let timeLeft, timerId = null, currentMode = 'focus', focusCycles = 0, totalSecondsFocused = 0;
-    
-    const config = {
-        focus: { min: 25, color: '#ff5b5b', bg: '#1a0a0a' },
-        short: { min: 5, color: '#40e0d0', bg: '#0a1a1a' },
-        long: { min: 15, color: '#9d7aff', bg: '#0e091a' }
-    };
-
-    const circle = document.querySelector('.progress-ring__circle');
-    const radius = circle.r.baseVal.value;
-    const circumference = radius * 2 * Math.PI;
-    circle.style.strokeDasharray = `${circumference} ${circumference}`;
-
-    function setMode(mode) {
-        currentMode = mode;
-        timeLeft = config[mode].min * 60;
-        document.documentElement.style.setProperty('--bg', config[mode].bg);
-        document.documentElement.style.setProperty('--accent', config[mode].color);
-        document.getElementById('modeName').textContent = mode.toUpperCase().replace('SHORT', 'SHORT BREAK').replace('LONG', 'LONG BREAK');
-        document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.id === 'btn-' + mode));
-        updateDisplay();
-    }
-
-    function updateDisplay() {
-        const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-        document.getElementById('timer').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-        circle.style.strokeDashoffset = circumference - (timeLeft / (config[currentMode].min * 60) * circumference);
-    }
-
-    function toggleTimer() {
-        const icon = document.getElementById('playIcon');
-        if (timerId) {
-            clearInterval(timerId);
-            timerId = null;
-            icon.textContent = 'play_arrow';
-        } else {
-            icon.textContent = 'pause';
-            timerId = setInterval(() => {
-                timeLeft--;
-                if (currentMode === 'focus') {
-                    totalSecondsFocused++;
-                    updateTotalTime();
-                }
-                updateDisplay();
-                if (timeLeft <= 0) {
-                    clearInterval(timerId);
-                    handleLoop();
-                }
-            }, 1000);
-        }
-    }
-
-    function updateTotalTime() {
-        const h = Math.floor(totalSecondsFocused/3600), mi = Math.floor((totalSecondsFocused%3600)/60), se = totalSecondsFocused%60;
-        document.getElementById('totalTimeDisplay').textContent = `${h.toString().padStart(2,'0')}:${mi.toString().padStart(2,'0')}:${se.toString().padStart(2,'0')}`;
-    }
-
-    function handleLoop() {
-        document.getElementById('bell').play().catch(() => {});
-        
-        if (currentMode === 'focus') {
-            focusCycles++;
-            updateDots();
-            if (focusCycles % 4 === 0) setMode('long'); else setMode('short');
-        } else {
-            setMode('focus');
-        }
-        
-        // บรรทัดสำคัญ: สั่งให้ Timer เริ่มงานต่อทันที
-        setTimeout(() => {
-            if (!timerId) toggleTimer(); 
-        }, 1500); 
-    }
-
-    function updateDots() {
-        const dots = document.querySelectorAll('.dot');
-        const activeCount = focusCycles % 4 === 0 && focusCycles !== 0 ? 4 : focusCycles % 4;
-        dots.forEach((d, i) => d.classList.toggle('active', i < activeCount));
-    }
-
-    function resetEverything() {
-        clearInterval(timerId); timerId = null;
-        document.getElementById('playIcon').textContent = 'play_arrow';
-        focusCycles = 0; totalSecondsFocused = 0;
-        updateTotalTime();
-        document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
-        setMode('focus');
-    }
-
-    function skipStep() {
-        clearInterval(timerId);
-        timerId = null;
-        handleLoop();
-    }
-
-    setMode('focus');
-</script>
+<script src="b.js"></script>
 </body>
 </html>
