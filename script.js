@@ -1,9 +1,9 @@
 let timeLeft, timerId = null, currentMode = 'focus', focusCycles = 0, totalSecondsFocused = 0;
 
 const config = {
-    focus: { min: 1, color: '#ff5b5b', bg: '#1a0a0a' },
-    short: { min: 1, color: '#40e0d0', bg: '#0a1a1a' },
-    long: { min: 1, color: '#9d7aff', bg: '#0e091a' }
+    focus: { min: 25, color: '#ff5b5b', bg: '#1a0a0a' },
+    short: { min: 5, color: '#40e0d0', bg: '#0a1a1a' },
+    long: { min: 15, color: '#9d7aff', bg: '#0e091a' }
 };
 
 const circle = document.querySelector('.progress-ring__circle');
@@ -106,3 +106,4 @@ function skipStep() {
 
 // เริ่มต้นหน้าเว็บ
 setMode('focus');
+
